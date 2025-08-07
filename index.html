@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do Bohème Pastel</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fdfaf6;
+      color: #444;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background-color: #fffaf5;
+      border: 2px solid #f2e5da;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    h1 {
+      text-align: center;
+      color: #a17974;
+      margin-bottom: 10px;
+    }
+    input, button, select {
+      font-family: inherit;
+      border-radius: 10px;
+      border: 1px solid #d8cfc7;
+      padding: 8px;
+      margin-top: 8px;
+    }
+    .task {
+      background-color: #fff;
+      padding: 10px;
+      margin-top: 10px;
+      border-left: 5px solid #dabfb2;
+      border-radius: 10px;
+    }
+    .task.done {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-date {
+      font-size: 0.85em;
+      color: #a88f85;
+    }
+    .buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .btn {
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 To-Do Bohème</h1>
+    <input id="taskInput" type="text" placeholder="Nouvelle tâche..." />
+    <input id="dateInput" type="date" />
+    <button onclick="addTask()">Ajouter</button>
+
+    <div id="taskList"></div>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const dateInput = document.getElementById('dateInput');
+    const taskList = document.getElementById('taskList');
+
+    let tasks = JSON.parse(localStorage.getItem('bohoTasks')) || [];
+
+    function saveTasks() {
+      localStorage.setItem('bohoTasks', JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      if (!taskInput.value) return;
+      tasks.push({ text: taskInput.value, date: dateInput.value, done: false });
+      taskInput.value = '';
+      dateInput.value = '';
+      renderTasks();
+      saveTasks();
+    }
+
+    function toggleDone(index) {
+      tasks[index].done = !tasks[index].done;
+      renderTasks();
+      saveTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      renderTasks();
+      saveTasks();
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .forEach((task, index) => {
+          const taskEl = document.createElement('div');
+          taskEl.className = 'task' + (task.done ? ' done' : '');
+          taskEl.innerHTML = `
+            <div class="task-header">
+              <span>${task.text}</span>
+              <span class="task-date">${task.date}</span>
+            </div>
+            <div class="buttons">
+              <button class="btn" onclick="toggleDone(${index})">${task.done ? '↩️' : '✅'}</button>
+              <button class="btn" onclick="deleteTask(${index})">🗑️</button>
+            </div>
+          `;
+          taskList.appendChild(taskEl);
+        });
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
